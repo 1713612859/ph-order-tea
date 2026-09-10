@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #e9e5dc;
+  color: #0f2340;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Mobile app frame: center the phone-width column on desktop */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: #fbf7f0;
+  position: relative;
+  box-shadow: 0 0 40px rgba(15, 35, 64, 0.12);
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-navy px-5 py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-40;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-xl border border-navy px-5 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] disabled:opacity-40;
+  }
+  .chip {
+    @apply rounded-lg px-3 py-2 text-sm font-medium transition;
+  }
+  .chip-on {
+    @apply bg-navy/10 text-navy ring-1 ring-navy;
+  }
+  .chip-off {
+    @apply bg-cream-soft text-navy/70;
+  }
+  .card {
+    @apply rounded-xl2 bg-cream-card shadow-card;
+  }
+}
+
+/* hide scrollbars on horizontal category rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* safe-area padding for iOS standalone */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+/* ChaTea visual system */
+body { background: #e7e9e2; color: #263d31; }
+.app-shell { background: #faf9f5; box-shadow: 0 0 80px #233b3012; }
+button, a, input, textarea { -webkit-tap-highlight-color: transparent; }
+button { transition: background-color .18s, transform .18s, box-shadow .18s; }
+button:enabled { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #73955d; outline-offset: 4px; }
+.card { border: 1px solid #e9e9df; box-shadow: 0 4px 18px #263d3105; }
+.btn-primary { background: #294d3b; box-shadow: 0 4px 10px #294d3b12; }
+.btn-primary:hover { background: #1d3c2b; }
+.chip { min-height: 40px; }
+.chip-on { background: #eaf0e3; }
+.home-header { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: #faf9f5; }
+.wordmark { display: flex; align-items: center; gap: 8px; font: bold 27px Georgia, serif; letter-spacing: -1px; color: #294d3b; }
+.brand-seal { display: grid; place-items: center; height: 31px; width: 31px; border: 1px solid #476449; border-radius: 50%; font: 19px serif; }
+.brand-dot { font: 10px sans-serif; align-self: flex-start; margin-top: 6px; }
+.matcha-hero { height: 354px; overflow: hidden; position: relative; background: #e3e9d4; }
+.hero-orbit { position: absolute; width: 330px; height: 330px; border: 1px solid #b4c59970; border-radius: 50%; right: -155px; top: -65px; box-shadow: 0 0 0 35px #c9d4b435, 0 0 0 70px #c9d4b420; }
+.hero-copy { position: relative; z-index: 2; padding: 31px 24px; }
+.eyebrow { font-size: 8px; font-weight: 700; letter-spacing: 1.7px; }
+.hero-copy .eyebrow { color: #647553; font-size: 7px; }
+.hero-copy h1 { font: 35px/1.12 Georgia, 'Times New Roman', serif; letter-spacing: -1.2px; margin-top: 18px; color: #2a4530; }
+.hero-copy h1 em { font-weight: 400; }
+.hero-description { font-size: 11px; line-height: 1.8; color: #5d6f53; white-space: pre-line; margin-top: 14px; }
+.hero-cta { display: inline-flex; align-items: center; gap: 12px; border-bottom: 1px solid #597248; padding-bottom: 6px; margin-top: 23px; font-size: 11px; font-weight: 600; }
+.hero-tea { position: absolute; pointer-events: none; }
+.hero-tea-back { width: 160px; right: -24px; top: 84px; transform: rotate(12deg); }
+.hero-tea-front { width: 194px; right: 34px; top: 131px; transform: rotate(-12deg); }
+.hero-caption { position: absolute; right: 20px; bottom: 16px; font-size: 6px; letter-spacing: 2px; color: #62754e; }
+.hero-pagination { display: flex; gap: 5px; position: absolute; bottom: 22px; left: 25px; }
+.hero-pagination span { width: 4px; height: 4px; border-radius: 4px; background: #a6b495; }
+.hero-pagination span:first-child { width: 18px; background: #425d3d; }
+.welcome-card { position: relative; margin: 18px 20px 0; padding: 17px 0 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4e7dc; }
+.welcome-card .eyebrow { color: #7f8973; font-size: 7px; }
+.welcome-card h2 { font: 23px Georgia, serif; margin: 6px 0; }
+.welcome-card p:last-child { font-size: 10px; color: #7a8174; }
+.welcome-action { display: flex; gap: 5px; align-items: center; font-size: 11px; font-weight: 600; padding: 9px 12px; border: 1px solid #d8ddce; border-radius: 20px; }
+.service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 22px 20px; }
+.service-card { background: #f0f2e8; border: 1px solid #e3e7d8; padding: 19px 16px; border-radius: 16px; position: relative; text-align: left; }
+.service-icon { display: inline-flex; color: #526d44; margin-bottom: 14px; }
+.service-card h2 { font-size: 17px; font-weight: 600; }
+.service-card p { font-size: 9px; margin-top: 5px; color: #7c8574; }
+.service-arrow { position: absolute; right: 14px; top: 23px; }
+.delivery-card { background: #f5f3ee; border-color: #ebe8e1; color: #8b8d80; }
+.delivery-card .service-icon { color: #989c8b; }
+.soon-pill { position: absolute; right: 10px; top: 13px; font-size: 7px; background: #e9e7df; padding: 4px 7px; border-radius: 8px; }
+.rewards-card { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 40px); margin: 0 20px; padding: 22px 18px; text-align: left; border-radius: 16px; background: #294737; color: #f4f1dc; }
+.rewards-card .eyebrow { color: #c4cc9f; font-size: 8px; }
+.rewards-card h2 { font: 19px Georgia, serif; margin: 9px 0 7px; }
+.rewards-card p:not(.eyebrow) { font-size: 9px; color: #c0cbb9; }
+.rewards-card div>span { display: inline-block; margin-top: 15px; font-size: 10px; }
+.reward-stamp { border: 1px solid #b8c79270; border-radius: 50%; width: 74px; height: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 10px; transform: rotate(12deg); }
+.reward-stamp span { font-size: 5px !important; margin-top: 7px !important; letter-spacing: 1px; }
+.discover-section { margin: 29px 20px 0; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+.section-heading .eyebrow { color: #8b907c; font-size: 7px; }
+.section-heading h2 { font: 21px Georgia, serif; margin-top: 6px; }
+.discovery-card { width: 100%; text-align: left; position: relative; overflow: hidden; border-radius: 16px; background: #e9e4d8; padding: 24px 20px; min-height: 188px; }
+.editorial-label { font-size: 7px; letter-spacing: 1.3px; color: #7c8163; }
+.discovery-card h3 { font: 25px/1.15 Georgia, serif; white-space: pre-line; margin-top: 12px; }
+.discovery-card p { font-size: 9px; color: #6d765b; margin-top: 19px; }
+.discovery-tea { position: absolute; width: 158px; right: -4px; top: 7px; transform: rotate(14deg); }
+.home-footer { text-align: center; font-size: 6px; letter-spacing: 2px; color: #a1a58f; padding: 25px 0; }
+.bottom-tabs { min-height: 70px; box-shadow: 0 -5px 20px #263d3105; }
+.bottom-tabs a { justify-content: center; gap: 5px; font-size: 10px; }
+.bottom-tabs a[aria-current="page"] { color: #365c3b; }
+.bottom-tabs a[aria-current="page"]::before { content: ''; position: absolute; top: 0; height: 2px; width: 24px; background: #5d7951; }
+/* menu: sticky category rail with its own overflow; the page itself scrolls */
+.menu-rail { position: sticky; top: 88px; max-height: calc(100dvh - 160px); overflow-y: auto; align-self: flex-start; }
+.menu-section { scroll-margin-top: 96px; }
+.product-row { border-bottom: 1px solid #e8e9df; padding-bottom: 16px; }
+.product-row:last-child { border-bottom: 0; }
+
+/* page action bar, stacked directly above the persistent tab bar */
+.app-footer { background: #fff; }
+.action-bar { border-top: 1px solid #e8e9df; background: #fff; box-shadow: 0 -6px 20px #263d310a; }
+
+/* cart sheet */
+.cart-sheet { box-shadow: 0 -12px 40px #1b2a1f26; animation: sheet-up .22s ease-out; }
+@keyframes sheet-up { from { transform: translateY(16px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
+
+/* transient confirmation toast */
+.toast { position: fixed; left: 50%; bottom: 150px; transform: translateX(-50%); z-index: 45; background: #294737; color: #f4f1dc; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 999px; box-shadow: 0 8px 24px #1b2a1f33; animation: toast-in .18s ease-out; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (max-width: 370px) { .hero-tea-front { right: -4px; width: 175px; top: 150px; } .hero-tea-back { right: -45px; } .hero-copy h1 { font-size: 31px; } .rewards-card h2 { font-size: 16px; } .discovery-tea { right: -35px; opacity: .85; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+
+/* Membership: a quiet editorial layout and a tactile club card. */
+.member-page { padding: 0 24px; background: #f8f8f3; flex: 1; color: #293e33; }
+.member-header { height: 68px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e4e7dd; gap: 12px; }
+.member-wordmark { font: bold 22px Georgia, serif; letter-spacing: -.7px; white-space: nowrap; }
+.member-wordmark>span { display: inline-block; font: 8px sans-serif; letter-spacing: 2px; margin-left: 9px; vertical-align: middle; }
+.member-header-note { font-size: 6px; letter-spacing: 1.2px; color: #8b927f; text-align: right; }
+.member-profile { padding: 27px 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.member-profile>div:first-child { min-width: 0; }
+.member-kicker { font-size: 7px; letter-spacing: 1.5px; color: #859077; margin-bottom: 9px; }
+.member-profile h1 { font: 27px/1.15 Georgia, 'Times New Roman', serif; letter-spacing: -.6px; overflow-wrap: anywhere; }
+.member-phone { margin-top: 9px; font-size: 11px; letter-spacing: .3px; color: #7a8273; overflow-wrap: anywhere; }
+.member-avatar { flex-shrink: 0; position: relative; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; border: 5px solid #f0f1e8; background: #e1e6d4; outline: 1px solid #d8ddcc; font: 20px Georgia, serif; color: #5d714e; }
+.member-avatar>span { position: absolute; right: -5px; bottom: -6px; display: grid; place-items: center; background: #f8f8f3; border-radius: 50%; width: 21px; height: 21px; font-size: 14px; color: #9d8a51; }
+.club-card { position: relative; overflow: hidden; padding: 21px 21px 18px; background: #243f33; border-radius: 15px; color: #e9e7ce; box-shadow: 0 12px 22px -12px #243f3360; }
+.club-card-top, .club-card-bottom { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.club-card-top>span:first-child { font-size: 7px; letter-spacing: 1.6px; color: #c8cfb8; }
+.club-tier { border: 1px solid #aaa77a60; border-radius: 20px; font-size: 8px; letter-spacing: 1.3px; padding: 5px 9px; text-transform: uppercase; color: #d9c99a; }
+.club-card-title { position: relative; font: 29px/1.16 Georgia, serif; letter-spacing: -.4px; padding: 22px 0 24px; }
+.club-card-title em { color: #c9d1b0; }
+.club-card-bottom { border-top: 1px solid #d7dec222; padding-top: 13px; }
+.club-card-bottom>span:first-child { font-size: 8px; color: #aebea5; }
+.club-signature { font: italic 17px Georgia, serif; }
+.club-card-bottom button { font-size: 10px; color: #e5d3a4; padding: 4px; }
+.club-card-art { position: absolute; right: -76px; top: 25px; width: 210px; height: 230px; transform: rotate(30deg); pointer-events: none; }
+.club-card-art span { position: absolute; inset: 0; border: 1px solid #bac29c30; border-radius: 55% 0 55% 0; }
+.club-card-art span:nth-child(2) { inset: 17px; }.club-card-art span:nth-child(3) { inset: 34px; }.club-card-art span:nth-child(4) { inset: 51px; }
+.member-shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); padding: 26px 0 22px; border-bottom: 1px solid #e4e7dd; }
+.member-shortcuts>div, .member-shortcuts>button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; min-width: 0; }
+.member-shortcuts>button { border-left: 1px solid #e1e5d9; }
+.member-shortcuts>*>span:last-child { font-size: 10px; color: #727d6a; }
+.member-stat-number { font: 29px/30px Georgia, serif; display: flex; gap: 5px; }
+.points-spark { font-size: 12px; color: #a28e51; }
+.member-shortcut-icon { height: 30px; display: grid; place-items: center; position: relative; color: #5c7051; }
+.member-shortcut-icon b { position: absolute; top: -5px; right: -12px; font-size: 9px; font-weight: 500; border-radius: 50%; background: #e6eada; width: 17px; height: 17px; display: grid; place-items: center; }
+.member-preferences { padding-top: 23px; }
+.member-preferences h2 { font: 21px Georgia, serif; letter-spacing: -.4px; }
+.member-section-sub { font-size: 10px; color: #87907f; margin-top: 6px; }
+.member-setting-list { margin-top: 13px; }
+.member-setting-row { display: flex; align-items: center; gap: 12px; padding: 17px 0; width: 100%; text-align: left; }
+.member-setting-row+.member-setting-row { border-top: 1px solid #e8eadf; }
+.member-setting-icon { display: grid; place-items: center; background: #eef0e7; color: #768367; border-radius: 11px; width: 36px; height: 36px; flex-shrink: 0; }
+.member-setting-copy { flex: 1; min-width: 0; }
+.member-setting-copy h3, .member-setting-title { font-size: 12px; font-weight: 600; }
+.member-setting-copy p { font-size: 9px; line-height: 1.6; margin-top: 4px; color: #89907f; }
+.member-switch { height: 24px; width: 41px; flex-shrink: 0; border-radius: 20px; background: #d5d9cc; position: relative; }
+.member-switch.is-on { background: #4f6c43; }
+.member-switch>span { position: absolute; width: 18px; height: 18px; top: 3px; left: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0002; transition: transform .2s; }
+.member-switch.is-on>span { transform: translateX(17px); }
+.member-language { font-size: 11px; color: #7f8877; }
+.member-tea-note { display: flex; gap: 12px; align-items: center; width: 100%; padding: 17px 14px; margin-top: 12px; background: #edf0e3; border-radius: 12px; text-align: left; }
+.member-note-icon { color: #75865c; }
+.member-tea-note>span:nth-child(2) { flex: 1; }
+.member-tea-note strong { display: block; font: 14px Georgia, serif; }
+.member-tea-note small { display: block; font-size: 9px; color: #849073; margin-top: 6px; }
+.member-footer { text-align: center; padding: 21px 0 23px; }
+.member-footer button { font-size: 10px; color: #7a8173; padding: 5px 12px 19px; }
+.member-footer button span { margin-left: 10px; }
+.member-footer p { font-size: 6px; color: #939c88; letter-spacing: 1.8px; }
+.member-footer>span { display: block; font-size: 8px; color: #a1a796; margin-top: 7px; }
+@media (max-width: 370px) { .member-page { padding: 0 20px; } .member-profile h1 { font-size: 24px; } .club-card-title { font-size: 27px; } .club-card { padding: 18px; } .member-header-note { max-width: 110px; line-height: 1.8; } }
