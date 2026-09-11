@@ -1,3 +1,5 @@
+import { validateLine } from "@/lib/validation";
+import type { DictKey } from "@/lib/i18n/dict";
 import { useAuth } from "@/stores/useAuth";
 import { LoginSheet } from "./LoginSheet";
 import { useMemo, useRef, useState } from "react";
@@ -19,6 +21,12 @@ import type { SpecGroup, SpecOption } from "@/types";
 export function ProductPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
+  return <ProductConfiguration key={`${id}:${params.get("line") ?? "new"}`} />;
+}
+
+function ProductConfiguration() {
+  const { id } = useParams();
+  const [params] = useSearchParams();
   const editingLineId = params.get("line");
   const navigate = useNavigate();
   const { t, tx } = useT();
@@ -26,7 +34,7 @@ export function ProductPage() {
   const storeId = useSettings((s) => s.selectedStoreId);
   const addLine = useCart((s) => s.addLine);
   const updateLine = useCart((s) => s.updateLine);
-  const editingLine = useCart((s) => s.cart.lines.find((l) => l.lineId === editingLineId));
+  const editingLine = useCart((s) => s.cart.lines.find((l) => l.lineId === editingLineId && l.productId === id));
 
   const product = id ? catalogRepo.getProduct(id) : undefined;
   const availability = useMemo(() => (product ? catalogRepo.getAvailability(storeId, product.id) : { isSoldOut: false, soldOutOptionIds: [] }), [product, storeId]);
@@ -98,7 +106,8 @@ export function ProductPage() {
     });
   };
 
-  const validSelection = !availability.isSoldOut && product.specGroups.every(g => !g.required || g.options.some(o => selectedOptionIds.includes(o.id) && isOptionEnabled(o, availability.soldOutOptionIds)));
+  const selectionError = storeId ? validateLine(storeId, { productId: product.id, selectedOptionIds, quantity: qty }) : null;
+  const validSelection = !selectionError;
 
   const commit = (thenGo: "back" | "cart") => {
     if (!useAuth.getState().isLoggedIn) {
@@ -121,7 +130,7 @@ export function ProductPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="product-page flex flex-1 flex-col">
       <LoginSheet
         open={loginOpen}
         onClose={() => {
@@ -135,10 +144,11 @@ export function ProductPage() {
         }}
       />
       {/* hero */}
-      <div className="relative">
+      <div className={`product-hero relative ${product.sellingPoints?.length ? "product-hero-editorial" : ""}`}>
         <Media image={product.image} productId={product.id} accent={accent} className="h-64 w-full" rounded="rounded-none" />
+        {!!product.sellingPoints?.length && <div className="product-hero-copy"><p>{product.sellingPoints.map(tx).join(" · ")}</p><span>{tx(product.description)}</span>{product.teaBase && <small>{t("product.teaBase")}: <strong>{tx(product.teaBase)}</strong></small>}</div>}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(editingLine ? "/menu?cart=1" : "/menu")}
           aria-label={t("common.close")}
           className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-navy shadow"
         >
@@ -146,13 +156,19 @@ export function ProductPage() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-40">
-        <h1 className="mt-4 text-2xl font-bold text-navy">{tx(product.name)}</h1>
-        {product.teaBase && (
-          <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">
-            {t("product.teaBase")}: <span className="text-navy">{tx(product.teaBase)}</span>
-          </p>
-        )}
+      <div className="product-content relative z-10 -mt-6 flex-1 rounded-t-3xl bg-white px-5 pb-8 shadow-[0_-8px_24px_rgba(31,59,44,0.08)]">
+        {selectionError && <p role="alert" className="validation-message">{t(selectionError as DictKey)}</p>}
+        <div className="mt-5 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-navy">{tx(product.name)}</h1>
+            {product.teaBase && (
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                {t("product.teaBase")}: <span className="text-navy">{tx(product.teaBase)}</span>
+              </p>
+            )}
+          </div>
+          <span className="shrink-0 pt-0.5 text-xl font-extrabold text-brand-red">{formatPHP(unit * qty)}</span>
+        </div>
         <p className={`mt-2 text-sm text-muted ${expanded ? "" : "line-clamp-2"}`}>{tx(product.description)}</p>
         {tx(product.description).length > 60 && (
           <button onClick={() => setExpanded((v) => !v)} className="mt-1 flex items-center gap-1 text-xs font-medium text-navy">
@@ -165,7 +181,7 @@ export function ProductPage() {
           .slice()
           .sort((a, b) => a.sortOrder - b.sortOrder)
           .map((group) => (
-            <div key={group.id} className="mt-6">
+            <div key={group.id} className={`spec-group mt-6 ${group.priceMode === "base" ? "spec-group-base" : ""}`}>
               <div className="flex items-baseline justify-between">
                 <h3 className="text-sm font-bold text-navy">{tx(group.name)}</h3>
                 {group.selectType === "multi" && group.maxSelect && (
@@ -184,6 +200,7 @@ export function ProductPage() {
                     return (
                       <button
                         key={opt.id}
+                        aria-pressed={!!active}
                         disabled={!enabled}
                         onClick={() =>
                           group.selectType === "single"
@@ -222,7 +239,7 @@ export function ProductPage() {
       <ActionBar>
         <div className="px-4 py-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xl font-extrabold text-brand-amber">{formatPHP(unit * qty)}</span>
+            <span className="text-xl font-extrabold text-brand-red">{formatPHP(unit * qty)}</span>
             <QtyStepper value={qty} onChange={(v) => setQty(Math.max(1, v))} />
           </div>
           <div className="flex gap-3">
@@ -242,6 +259,4 @@ export function ProductPage() {
 function isOptionEnabled(opt: SpecOption, soldOutOptionIds: string[]): boolean {
   return opt.isAvailable && !soldOutOptionIds.includes(opt.id);
 }
-
-
 

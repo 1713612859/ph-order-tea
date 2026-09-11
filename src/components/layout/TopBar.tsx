@@ -18,7 +18,7 @@ export function TopBar({ title, onBack, right, transparent }: TopBarProps) {
       }`}
     >
       <button
-        onClick={() => (onBack ? onBack() : navigate(-1))}
+        onClick={() => (onBack ? onBack() : window.history.state?.idx > 0 ? navigate(-1) : navigate("/"))}
         aria-label="Back"
         className="flex h-10 w-10 items-center justify-center rounded-full text-navy hover:bg-cream-soft"
       >

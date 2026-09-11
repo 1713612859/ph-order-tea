@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useAuth } from "@/stores/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Icon } from "@/components/ui/Icon";
@@ -14,10 +17,13 @@ export function OrderDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t, tx, locale } = useT();
+  const memberId = useAuth(s => s.member?.id);
   const order = useOrders((s) => (id ? s.getById(id) : undefined));
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const cancel = useOrders(s => s.cancel);
   const advance = useOrders((s) => s.advanceStatus);
 
-  if (!order) {
+  if (!order || order.memberId !== memberId) {
     return (
       <div className="flex flex-1 flex-col">
         <TopBar title={t("order.detail")} />
@@ -34,20 +40,22 @@ export function OrderDetailPage() {
   const canAdvance = nextStatus(order.status) !== null && order.status !== "pending_payment";
 
   return (
-    <div className="flex flex-1 flex-col bg-cream">
+    <div className="order-detail-page flex flex-1 flex-col bg-cream">
       <TopBar title={t("order.detail")} />
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3 pb-28">
+      <ConfirmDialog open={cancelOpen} title={t("common.cancel")} body={tx({en:"Cancel this unpaid order? Your voucher will be released.",zh:"取消该待支付订单？已选优惠券将释放。"})} confirmLabel={t("common.confirm")} cancelLabel={t("common.back")} onConfirm={() => { cancel(order.id); setCancelOpen(false); }} onCancel={() => setCancelOpen(false)} />
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3 pb-6">
         {/* status + pickup number */}
         <div className="card p-5 text-center">
           <StatusBadge status={order.status} />
           <p className="mt-3 text-xs text-muted">{t("orders.pickupNo")}</p>
           <p className="text-5xl font-extrabold tracking-wide text-navy">{order.pickup.pickupNumber}</p>
-          <p className="mt-2 text-xs text-muted">{t("order.showTo")}</p>
+          <p className="mt-2 text-xs text-muted">{order.status === "pending_payment" ? tx({en:"Complete payment to confirm your pickup order",zh:"完成支付后确认取餐订单"}) : order.status === "cancelled" ? t("status.cancelled") : t("order.showTo")}</p>
           {order.status === "pending_payment" && (
             <button onClick={() => navigate(`/payment/${order.id}`)} className="btn-primary mt-4 w-full">
               {t("checkout.pay")} {formatPHP(p.grandTotal)}
             </button>
           )}
+          {order.status === "pending_payment" && <button className="mt-3 text-xs text-muted" onClick={() => setCancelOpen(true)}>{tx({en:"Cancel order",zh:"取消订单"})}</button>}
           {canAdvance && (
             <button onClick={() => advance(order.id)} className="btn-outline mt-4 w-full">
               {t("order.advance")}
@@ -135,7 +143,7 @@ export function OrderDetailPage() {
             <span>{formatPHP(p.vatAmount)}</span>
           </div>
           <div className="mt-2 flex items-center justify-between border-t border-line pt-2">
-            <span className="text-sm font-bold text-navy">{t("order.total")}</span>
+            <span className="text-sm font-bold text-navy">{order.payment.status === "success" ? t("order.total") : t("checkout.subtotal")}</span>
             <span className="text-lg font-extrabold text-navy">{formatPHP(p.grandTotal)}</span>
           </div>
           <p className="mt-2 text-[11px] text-muted">

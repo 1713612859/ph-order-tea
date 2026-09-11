@@ -1,3 +1,4 @@
+import { useAuth } from "@/stores/useAuth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
@@ -14,23 +15,30 @@ export function OrdersPage() {
   const { t, tx, locale } = useT();
   const navigate = useNavigate();
   const orders = useOrders((s) => s.orders);
+  const memberId = useAuth(s => s.member?.id);
   const [filter, setFilter] = useState<Filter>("all");
 
   const list = orders.filter((o) => {
+    if (o.memberId !== memberId) return false;
     if (filter === "active") return ACTIVE.has(o.status);
     if (filter === "completed") return o.status === "completed" || o.status === "cancelled";
     return true;
   });
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="orders-page flex flex-1 flex-col">
       <header className="sticky top-0 z-20 border-b border-line bg-cream/95 px-4 pb-2 pt-4 backdrop-blur">
         <h1 className="text-xl font-bold text-navy">{t("orders.title")}</h1>
-        <div className="mt-3 flex gap-6">
+        <div className="mt-3 flex rounded-full bg-cream-soft p-1">
           {(["all", "active", "completed"] as Filter[]).map((f) => (
-            <button key={f} onClick={() => setFilter(f)} className={`relative pb-2 text-sm font-semibold ${filter === f ? "text-navy" : "text-muted"}`}>
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`flex-1 rounded-full py-2 text-sm font-semibold transition ${
+                filter === f ? "bg-navy text-white" : "text-muted"
+              }`}
+            >
               {t(`orders.${f}` as const)}
-              {filter === f && <span className="absolute -bottom-px left-0 h-0.5 w-full bg-brand-red" />}
             </button>
           ))}
         </div>

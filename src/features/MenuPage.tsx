@@ -14,6 +14,7 @@ import { useMemberMode } from "@/stores/useMemberMode";
 import { useAuth } from "@/stores/useAuth";
 import { LoginSheet } from "./LoginSheet";
 import { CartSheet } from "./CartSheet";
+import { defaultOptions } from "@/lib/validation";
 import type { Category } from "@/types";
 
 export function MenuPage() {
@@ -24,7 +25,7 @@ export function MenuPage() {
   const memberMode = useMemberMode();
   const cart = useCart((s) => s.cart);
   const addLine = useCart((s) => s.addLine);
-  const isLoggedIn = useAuth((s) => s.isLoggedIn);
+  
 
   const store = storeId ? storeRepo.getById(storeId) : undefined;
   const categories = useMemo(() => catalogRepo.listCategories(), []);
@@ -34,16 +35,23 @@ export function MenuPage() {
     [store],
   );
 
-  const grouped = useMemo(
-    () =>
-      categories
-        .map((c) => ({ category: c, items: products.filter((p) => p.product.categoryId === c.id) }))
-        .filter((g) => g.items.length > 0),
-    [categories, products],
-  );
+  const [query, setQuery] = useState("");
+  const grouped = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return categories
+      .map((c) => ({
+        category: c,
+        items: products.filter(
+          (p) =>
+            p.product.categoryId === c.id &&
+            (!q || p.product.name.en.toLowerCase().includes(q) || p.product.name.zh.includes(query.trim())),
+        ),
+      }))
+      .filter((g) => g.items.length > 0);
+  }, [categories, products, query]);
 
   const [activeCat, setActiveCat] = useState<string | undefined>(grouped[0]?.category.id);
-  const [cartOpen, setCartOpen] = useState(params.get("cart") === "1");
+  const cartOpen = params.get("cart") === "1";
   const [loginOpen, setLoginOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -65,7 +73,7 @@ export function MenuPage() {
       let current = ids[0];
       for (const id of ids) {
         const el = sectionRefs.current[id];
-        if (el && el.getBoundingClientRect().top <= 130) current = id;
+        if (el && el.getBoundingClientRect().top <= 170) current = id;
       }
       setActiveCat((prev) => (prev === current ? prev : current));
     };
@@ -76,7 +84,12 @@ export function MenuPage() {
   }, [grouped]);
 
   useEffect(() => {
-    if (activeCat) railRefs.current[activeCat]?.scrollIntoView({ block: "nearest" });
+    const button = activeCat ? railRefs.current[activeCat] : null;
+    const rail = button?.parentElement;
+    if (button && rail) {
+      if (button.offsetTop < rail.scrollTop) rail.scrollTop = button.offsetTop;
+      if (button.offsetTop + button.offsetHeight > rail.scrollTop + rail.clientHeight) rail.scrollTop = button.offsetTop + button.offsetHeight - rail.clientHeight;
+    }
   }, [activeCat]);
 
   const jumpTo = (id: string) => {
@@ -86,7 +99,6 @@ export function MenuPage() {
   };
 
   const openCart = (next: boolean) => {
-    setCartOpen(next);
     const p = new URLSearchParams(params);
     if (next) p.set("cart", "1");
     else p.delete("cart");
@@ -125,7 +137,7 @@ export function MenuPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="menu-page flex flex-1 flex-col">
       {/* store header */}
       <div className="menu-header sticky top-0 z-20 border-b border-line bg-cream/95 px-4 py-3 backdrop-blur">
         <p className="text-xs font-bold uppercase tracking-wide text-brand-red">{t("common.pickup")}</p>
@@ -136,11 +148,25 @@ export function MenuPage() {
           <Icon name="chevron-right" className="h-4 w-4 text-muted" />
         </button>
         <p className="text-xs text-brand-amber">{t("menu.orderInstant")}</p>
+        <div className="mt-2.5 flex items-center gap-2 rounded-full bg-cream-soft px-4 py-2.5">
+          <Icon name="search" className="h-4 w-4 shrink-0 text-muted" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("menu.searchPlaceholder")}
+            className="w-full bg-transparent text-sm text-navy outline-none placeholder:text-muted"
+          />
+          {query && (
+            <button onClick={() => setQuery("")} aria-label={t("common.close")} className="shrink-0 text-muted">
+              <Icon name="close" className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-1 items-start">
         {/* category rail */}
-        <nav className="menu-rail no-scrollbar w-24 shrink-0 border-r border-line bg-cream-soft/60" aria-label={t("tab.menu")}>
+        <nav className="menu-rail no-scrollbar w-24 shrink-0 bg-[#F2EFE9]" aria-label={t("tab.menu")}>
           {grouped.map((g) => (
             <button
               key={g.category.id}
@@ -149,20 +175,21 @@ export function MenuPage() {
               }}
               onClick={() => jumpTo(g.category.id)}
               aria-current={activeCat === g.category.id}
-              className={`relative block w-full px-2 py-4 text-center text-xs leading-tight transition ${
-                activeCat === g.category.id ? "bg-cream font-bold text-navy" : "font-medium text-muted"
+              className={`mx-1.5 block w-[calc(100%-12px)] rounded-xl text-center text-[11px] leading-tight transition ${
+                activeCat === g.category.id
+                  ? "bg-white font-bold text-navy shadow-[0_2px_8px_rgba(31,59,44,0.10)]"
+                  : "font-medium text-[#6B6B60]"
               }`}
             >
-              {activeCat === g.category.id && (
-                <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r bg-brand-red" />
-              )}
               {tx(g.category.name)}
             </button>
           ))}
         </nav>
 
         {/* product list */}
-        <div className="min-w-0 flex-1 px-3">
+        <div className="catalog-list min-w-0 flex-1 px-3">
+          <div className="catalog-campaign"><div><span>PURE AT HEART</span><strong>{tx({en:"Meet your matcha.",zh:"遇见你的抹茶。"})}</strong><small>{tx({en:"Freshly crafted, sip by sip.",zh:"现制鲜萃，每口用心。"})}</small></div><img src="/images/matcha-editorial.png" alt=""/></div>
+          {grouped.length === 0 && <p className="py-12 text-center text-sm text-muted">{t("menu.noResults")}</p>}
           {grouped.map((g) => (
             <section
               key={g.category.id}
@@ -190,10 +217,10 @@ export function MenuPage() {
         </div>
       </div>
 
-      {toast && <div className="toast">{toast}</div>}
+      {toast && <div role="status" className="toast">{toast}</div>}
 
-      {/* cart bar sits above the persistent tab bar */}
-      {qty > 0 && (
+      {/* cart bar sits above the persistent tab bar; hidden while the bag sheet is open */}
+      {qty > 0 && !cartOpen && (
         <ActionBar>
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <button onClick={() => openCart(true)} className="flex items-center gap-3" aria-label={t("cart.title")}>
@@ -254,7 +281,7 @@ function ProductRow({
     ? getMerchandisePrice(product.id)
     : calcUnitPrice(
         product,
-        product.specGroups.flatMap((g) => g.options.filter((o) => o.isDefault).map((o) => o.id)),
+        defaultOptions(product.id, useSettings.getState().selectedStoreId),
         memberMode,
       );
   const isNew = product.tags.includes("new");
@@ -287,7 +314,7 @@ function ProductRow({
           </span>
         )}
         <div className="mt-auto flex items-end justify-between pt-1">
-          <span className="text-sm font-extrabold text-brand-amber">{formatPHP(price)}</span>
+          <span className="text-sm font-extrabold text-brand-red">{formatPHP(price)}</span>
           {!isSoldOut && (
             <button
               onClick={isMerch ? onQuickAdd : onOpen}

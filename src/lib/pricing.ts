@@ -11,7 +11,7 @@ export function calcUnitPrice(product: Product, selectedOptionIds: string[], mem
   if (baseGroup) {
     const chosen = baseGroup.options.find((o) => selected.has(o.id)) ?? baseGroup.options.find((o) => o.isDefault) ?? baseGroup.options[0];
     if (chosen) {
-      base = memberMode && chosen.memberPrice && chosen.memberPrice > 0 ? chosen.memberPrice : chosen.retailPrice;
+      base = memberMode && chosen.memberPrice != null && chosen.memberPrice >= 0 ? chosen.memberPrice : chosen.retailPrice;
     }
   } else {
     // merchandise or drinks without a base group
@@ -55,9 +55,8 @@ export function cartTotalQuantity(cart: Cart): number {
 }
 
 /** Compute the discount a voucher yields against an items subtotal (centavos). 0 if ineligible. */
-export function voucherDiscount(voucher: Voucher | undefined, itemsSubtotal: Centavos): Centavos {
-  if (!voucher) return 0;
-  if (voucher.minSpend && itemsSubtotal < voucher.minSpend) return 0;
+export function voucherDiscount(voucher: Voucher | undefined, itemsSubtotal: Centavos, context: VoucherContext = {}): Centavos {
+  if (!voucher || !isVoucherEligible(voucher, itemsSubtotal, context)) return 0;
   if (voucher.type === "amount") return Math.min(voucher.value, itemsSubtotal);
   // percent
   const raw = Math.round((itemsSubtotal * voucher.value) / 100);
@@ -65,8 +64,21 @@ export function voucherDiscount(voucher: Voucher | undefined, itemsSubtotal: Cen
   return Math.min(cap ?? raw, raw, itemsSubtotal);
 }
 
-export function isVoucherEligible(voucher: Voucher, itemsSubtotal: Centavos): boolean {
-  return !voucher.minSpend || itemsSubtotal >= voucher.minSpend;
+export interface VoucherContext {
+  memberId?: string | null;
+  storeId?: string | null;
+  productIds?: string[];
+  unavailableVoucherIds?: string[];
+  now?: number;
+}
+export function isVoucherEligible(voucher: Voucher, itemsSubtotal: Centavos, context: VoucherContext = {}): boolean {
+  const now = context.now ?? Date.now();
+  return !voucher.isUsed && !context.unavailableVoucherIds?.includes(voucher.id)
+    && now >= Date.parse(voucher.validFrom) && now <= Date.parse(voucher.validTo)
+    && (!voucher.memberId || voucher.memberId === context.memberId)
+    && (!voucher.minSpend || itemsSubtotal >= voucher.minSpend)
+    && (!voucher.applicableStoreIds?.length || !!context.storeId && voucher.applicableStoreIds.includes(context.storeId))
+    && (!voucher.applicableProductIds?.length || !!context.productIds?.length && context.productIds.every(id => voucher.applicableProductIds!.includes(id)));
 }
 
 /** VAT is embedded in the (inclusive) grand total, never added on top. */
@@ -80,12 +92,13 @@ export interface CheckoutInput {
   memberMode: boolean;
   packagingFeeAmount: Centavos; // 0 if unchecked
   voucher?: Voucher;
+  voucherContext?: VoucherContext;
 }
 
 export function calcCheckout(input: CheckoutInput): OrderPriceBreakdown {
   const itemsSubtotal = cartSelectedTotal(input.cart, input.memberMode);
   const packagingFee = input.packagingFeeAmount;
-  const discount = voucherDiscount(input.voucher, itemsSubtotal);
+  const discount = voucherDiscount(input.voucher, itemsSubtotal, { ...input.voucherContext, storeId: input.cart.storeId, productIds: selectedLines(input.cart).map(l => l.productId) });
   const grandTotal = Math.max(0, itemsSubtotal + packagingFee - discount);
   const { vatableSales, vatAmount } = breakdownVat(grandTotal);
   return {

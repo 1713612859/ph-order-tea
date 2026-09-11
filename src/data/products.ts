@@ -133,7 +133,7 @@ function beverage(
             { en: "Smooth", zh: "顺滑" },
           ]
         : undefined,
-    image: { url: "", alt: p.name },
+    image: { url: p.id === "prod_signature_matcha_latte" ? "/images/matcha-editorial.png" : "", alt: p.name },
     tags: p.tags ?? [],
     specGroups: groups,
     allowRemark: true,

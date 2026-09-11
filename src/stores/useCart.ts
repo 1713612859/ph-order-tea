@@ -1,3 +1,5 @@
+import { validateLine, canOrderAt, MAX_QUANTITY } from "@/lib/validation";
+import { storeById } from "@/data";
 import { useAuth } from "./useAuth";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -47,6 +49,7 @@ export const useCart = create<CartState>()(
         return cart.storeId !== null && cart.storeId !== storeId && cart.lines.length > 0;
       },
       setStore: (storeId) => {
+        if (!canOrderAt(storeById[storeId])) return false;
         const { cart } = get();
         const switching = cart.storeId !== null && cart.storeId !== storeId && cart.lines.length > 0;
         if (switching) {
@@ -59,10 +62,11 @@ export const useCart = create<CartState>()(
       addLine: ({ productId, selectedOptionIds, quantity, remark }) => {
         if (!useAuth.getState().isLoggedIn) return;
         const { cart } = get();
+        if (validateLine(cart.storeId, { productId, selectedOptionIds, quantity })) return;
         const existing = cart.lines.find((l) => sameConfig({ productId, selectedOptionIds, remark }, l));
         let lines: CartLine[];
         if (existing) {
-          lines = cart.lines.map((l) => (l.lineId === existing.lineId ? { ...l, quantity: l.quantity + quantity } : l));
+          lines = cart.lines.map((l) => (l.lineId === existing.lineId ? { ...l, quantity: Math.min(MAX_QUANTITY, l.quantity + quantity), isSelected: true } : l));
         } else {
           lines = [
             ...cart.lines,
@@ -74,10 +78,19 @@ export const useCart = create<CartState>()(
       updateLine: (id, patch) => {
         if (!useAuth.getState().isLoggedIn) return;
         const { cart } = get();
-        set({ cart: { ...cart, lines: cart.lines.map((l) => (l.lineId === id ? { ...l, ...patch } : l)), updatedAt: new Date().toISOString() } });
+        const original = cart.lines.find(l => l.lineId === id);
+        if (!original) return;
+        const updated = { ...original, ...patch };
+        if (validateLine(cart.storeId, updated)) return;
+        const duplicate = cart.lines.find(l => l.lineId !== id && sameConfig(updated, l));
+        if (duplicate && duplicate.quantity + updated.quantity > MAX_QUANTITY) return;
+        const lines = duplicate ? cart.lines.filter(l => l.lineId !== id).map(l => l.lineId === duplicate.lineId ? { ...l, quantity: l.quantity + updated.quantity, isSelected: l.isSelected || updated.isSelected } : l) : cart.lines.map(l => l.lineId === id ? updated : l);
+        set({ cart: { ...cart, lines, updatedAt: new Date().toISOString() } });
       },
       setQuantity: (id, quantity) => {
+        if (!Number.isInteger(quantity) || quantity < 0 || quantity > MAX_QUANTITY) return;
         const existing = get().cart.lines.find((line) => line.lineId === id);
+        if (existing && quantity > existing.quantity && validateLine(get().cart.storeId, {...existing, quantity})) return;
         if (!useAuth.getState().isLoggedIn && existing && quantity > existing.quantity) return;
         const { cart } = get();
         if (quantity <= 0) {

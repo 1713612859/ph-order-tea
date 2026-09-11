@@ -17,11 +17,10 @@ export function HomePage() {
   const order = () => navigate(storeId ? "/menu" : "/stores");
   return <div className="home-page">
     <header className="home-header"><a href="/" className="wordmark"><span className="brand-seal">茶</span>ChaTea<span className="brand-dot">®</span></a><LanguageToggle /></header>
-    <section className="matcha-hero">
-      <div className="hero-orbit" />
-      <div className="hero-copy"><p className="eyebrow">A LITTLE GREEN. A LITTLE SERENITY.</p><h1>{tx({ en: "Your daily", zh: "把一抹清新" })}<br/><em>{tx({ en: "moment of zen.", zh: "融入日常。" })}</em></h1><p className="hero-description">{tx({ en: "Meet your matcha. Rich, creamy,\nand made just for you.", zh: "细腻抹茶，醇香鲜奶。\n为你现制的片刻美好。" })}</p><button onClick={order} className="hero-cta">{tx({ en: "Explore matcha", zh: "探索抹茶系列" })}<Icon name="chevron-right" className="h-4 w-4"/></button></div>
-      <div className="hero-tea hero-tea-back"><TeaArtwork color="#405f36"/></div><div className="hero-tea hero-tea-front"><TeaArtwork color="#779453"/></div>
-      <span className="hero-caption">THE MATCHA COLLECTION</span><div className="hero-pagination"><span/><span/><span/></div>
+    <section className="campaign-hero">
+      <img src="/images/matcha-editorial.png" alt={tx({en:"Freshly made iced matcha latte",zh:"现制冰抹茶拿铁"})} loading="eager"/>
+      <div className="campaign-copy"><p>MATCHA SERIES</p><h1>{tx({en:"Pure at Heart",zh:"纯粹，本心。"})}</h1><span>{tx({en:"A little green. A moment of calm.",zh:"一抹清新，一刻从容。"})}</span></div>
+      <button onClick={order} className="campaign-button">{tx({en:"Discover your matcha",zh:"探索抹茶系列"})}<Icon name="chevron-right" className="h-4 w-4"/></button>
     </section>
     <section className="welcome-card"><div><p className="eyebrow">{tx({ en: "GOOD TEA, GOOD DAY", zh: "好茶，让今天更美好" })}</p><h2>{isLoggedIn ? member?.name : tx({ en: "Hello, tea lover.", zh: "你好，爱茶的你。" })}</h2><p>{isLoggedIn ? `${member?.points ?? 0} ${t("me.points")}` : tx({ en: "A little sip. A lot to look forward to.", zh: "每一口，都有值得期待的美好。" })}</p></div><button className="welcome-action" onClick={() => isLoggedIn ? navigate("/me") : setLoginOpen(true)}>{isLoggedIn ? t("tab.me") : t("common.login")}<Icon name="chevron-right" className="h-4 w-4"/></button></section>
     <div className="service-grid"><button onClick={order} className="service-card"><span className="service-icon"><Icon name="bag" className="h-7 w-7"/></span><h2>{t("common.pickup")}</h2><p>{t("home.pickupDesc")}</p><Icon name="chevron-right" className="service-arrow h-5 w-5"/></button><div className="service-card delivery-card"><span className="soon-pill">{t("common.comingSoon")}</span><span className="service-icon"><Icon name="location" className="h-7 w-7"/></span><h2>{t("common.delivery")}</h2><p>{t("home.deliveryDesc")}</p></div></div>
@@ -31,3 +30,4 @@ export function HomePage() {
     <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)}/>
   </div>;
 }
+

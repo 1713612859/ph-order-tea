@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/stores/useAuth";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ActionBar } from "@/components/layout/ActionBar";
 import { TopBar } from "@/components/layout/TopBar";
 import { Icon } from "@/components/ui/Icon";
@@ -12,18 +13,18 @@ import type { DictKey } from "@/lib/i18n/dict";
 type Phase = "select" | "processing" | "success" | "failed" | "cancelled";
 type Outcome = "success" | "failed" | "cancelled";
 
-const METHODS: { key: (typeof PaymentMethod)[keyof typeof PaymentMethod]; label: DictKey; tint: string }[] = [
-  { key: "gcash", label: "method.gcash", tint: "#0A7CFF" },
-  { key: "maya", label: "method.maya", tint: "#22C55E" },
-  { key: "qrph", label: "method.qrph", tint: "#6D28D9" },
-  { key: "card", label: "method.card", tint: "#0F2340" },
-  { key: "cash_on_pickup", label: "method.cash_on_pickup", tint: "#A9750B" },
+const METHODS: { key: (typeof PaymentMethod)[keyof typeof PaymentMethod]; label: DictKey; logos: string[] }[] = [
+  { key: "gcash", label: "method.gcash", logos: ["/icons/payments/gcash.png"] },
+  { key: "maya", label: "method.maya", logos: ["/icons/payments/maya.png"] },
+  { key: "qrph", label: "method.qrph", logos: ["/icons/payments/qrph.png"] },
+  { key: "card", label: "method.card", logos: ["/icons/payments/visa.png", "/icons/payments/mastercard.png"] },
 ];
 
 export function PaymentPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { t } = useT();
+  const memberId = useAuth(s => s.member?.id);
   const order = useOrders((s) => (orderId ? s.getById(orderId) : undefined));
   const pay = useOrders((s) => s.pay);
 
@@ -35,14 +36,16 @@ export function PaymentPage() {
     if (phase !== "processing") return;
     const timer = setTimeout(() => {
       if (orderId) pay(orderId, method, outcome);
-      setPhase(outcome);
+      const updated = useOrders.getState().getById(orderId ?? "");
+      if (updated?.payment.status === outcome) setPhase(outcome);
+      else navigate("/orders", { replace: true });
     }, 1400);
     return () => clearTimeout(timer);
-  }, [phase, outcome, method, orderId, pay]);
+  }, [phase, outcome, method, orderId, pay, navigate]);
 
-  if (!order) {
+  if (!order || order.memberId !== memberId) {
     return (
-      <div className="flex flex-1 flex-col">
+      <div className="payment-page flex flex-1 flex-col">
         <TopBar title={t("pay.title")} />
         <div className="flex flex-1 items-center justify-center p-8">
           <button onClick={() => navigate("/orders")} className="btn-primary">
@@ -52,6 +55,8 @@ export function PaymentPage() {
       </div>
     );
   }
+
+  if (order.status !== "pending_payment" && phase !== "success" && phase !== "processing") return <Navigate to={`/orders/${order.id}`} replace />;
 
   if (phase === "processing") {
     return (
@@ -69,7 +74,7 @@ export function PaymentPage() {
   return (
     <div className="flex flex-1 flex-col">
       <TopBar title={t("pay.title")} />
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4 pb-32">
+      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4 pb-6">
         <div className="card p-4 text-center">
           <p className="text-xs text-muted">{t("checkout.pay")}</p>
           <p className="mt-1 text-3xl font-extrabold text-navy">{formatPHP(order.price.grandTotal)}</p>
@@ -87,8 +92,16 @@ export function PaymentPage() {
                 onClick={() => setMethod(m.key)}
                 className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left ${method === m.key ? "border-navy bg-navy/5" : "border-line"}`}
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg text-white" style={{ background: m.tint }}>
-                  <Icon name="bag" className="h-5 w-5" />
+                <span className="flex h-10 w-16 shrink-0 items-center justify-center gap-1 rounded-lg bg-white ring-1 ring-line">
+                  {m.logos.map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt=""
+                      loading="lazy"
+                      className={m.logos.length > 1 ? "h-5 w-auto object-contain" : "h-7 w-auto object-contain"}
+                    />
+                  ))}
                 </span>
                 <span className="flex-1 text-sm font-semibold text-navy">{t(m.label)}</span>
                 <Icon name={method === m.key ? "check-circle" : "circle"} className={`h-6 w-6 ${method === m.key ? "text-navy" : "text-line"}`} />

@@ -1,3 +1,4 @@
+import { useAuth } from "./useAuth";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ID, Order, PaymentMethod, PaymentStatus, PaymentTransaction } from "@/types";
@@ -13,19 +14,29 @@ interface OrdersState {
   /** Records a payment attempt. On success, advances order to "paid". */
   pay: (orderId: ID, method: PaymentMethod, outcome: Extract<PaymentStatus, "success" | "failed" | "cancelled">) => void;
   advanceStatus: (orderId: ID) => void;
+  cancel: (orderId: ID) => void;
 }
 
 export const useOrders = create<OrdersState>()(
   persist(
     (set, get) => ({
       orders: [],
-      addOrder: (order) => set({ orders: [order, ...get().orders] }),
+      addOrder: (order) => {
+        if (!useAuth.getState().isLoggedIn || order.memberId !== useAuth.getState().member?.id) return;
+        if (get().orders.some(o => o.id === order.id || (order.appliedVoucherId && o.appliedVoucherId === order.appliedVoucherId && o.status !== "cancelled"))) return;
+        set({ orders: [order, ...get().orders] });
+      },
+      cancel: (id) => {
+        if (!useAuth.getState().isLoggedIn) return;
+        const now = new Date().toISOString();
+        set({ orders: get().orders.map(o => o.id === id && o.memberId === useAuth.getState().member?.id && o.status === "pending_payment" ? { ...o, status: "cancelled", updatedAt: now, statusHistory: [...o.statusHistory, {status: "cancelled", at: now}] } : o) });
+      },
       getById: (id) => get().orders.find((o) => o.id === id),
       pay: (orderId, method, outcome) => {
         const now = new Date().toISOString();
         set({
           orders: get().orders.map((o) => {
-            if (o.id !== orderId) return o;
+            if (o.id !== orderId || !useAuth.getState().isLoggedIn || o.memberId !== useAuth.getState().member?.id) return o;
             if (o.status !== "pending_payment" || o.payment.status === "success") return o;
             const attemptNo = o.payment.transactions.length + 1;
             const tx: PaymentTransaction = {
@@ -55,7 +66,7 @@ export const useOrders = create<OrdersState>()(
         const now = new Date().toISOString();
         set({
           orders: get().orders.map((o) => {
-            if (o.id !== orderId) return o;
+            if (o.id !== orderId || !useAuth.getState().isLoggedIn || o.memberId !== useAuth.getState().member?.id) return o;
             const ns = nextStatus(o.status);
             if (!ns) return o;
             return { ...o, status: ns, statusHistory: [...o.statusHistory, { status: ns, at: now }], updatedAt: now };

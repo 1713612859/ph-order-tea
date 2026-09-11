@@ -32,22 +32,22 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-navy px-5 py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-40;
+    @apply inline-flex items-center justify-center rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-40;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center rounded-xl border border-navy px-5 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] disabled:opacity-40;
+    @apply inline-flex items-center justify-center rounded-full border border-navy px-6 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] disabled:opacity-40;
   }
   .chip {
-    @apply rounded-lg px-3 py-2 text-sm font-medium transition;
+    @apply rounded-full px-4 py-2 text-sm font-medium transition;
   }
   .chip-on {
-    @apply bg-navy/10 text-navy ring-1 ring-navy;
+    @apply bg-navy text-white;
   }
   .chip-off {
     @apply bg-cream-soft text-navy/70;
   }
   .card {
-    @apply rounded-xl2 bg-cream-card shadow-card;
+    @apply rounded-2xl bg-cream-card shadow-card;
   }
 }
 
@@ -66,17 +66,15 @@ body {
 }
 
 /* ChaTea visual system */
-body { background: #e7e9e2; color: #263d31; }
-.app-shell { background: #faf9f5; box-shadow: 0 0 80px #233b3012; }
+body { background: #e9e7e0; color: #1f3b2c; }
+.app-shell { background: #f7f4ee; box-shadow: 0 0 80px #1f3b2c12; }
 button, a, input, textarea { -webkit-tap-highlight-color: transparent; }
 button { transition: background-color .18s, transform .18s, box-shadow .18s; }
 button:enabled { cursor: pointer; }
-button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #73955d; outline-offset: 4px; }
-.card { border: 1px solid #e9e9df; box-shadow: 0 4px 18px #263d3105; }
-.btn-primary { background: #294d3b; box-shadow: 0 4px 10px #294d3b12; }
-.btn-primary:hover { background: #1d3c2b; }
-.chip { min-height: 40px; }
-.chip-on { background: #eaf0e3; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #1f3b2c; outline-offset: 4px; }
+.card { border: 1px solid #e8e4d9; box-shadow: 0 4px 18px #1f3b2c05; }
+.btn-primary { background: #1f3b2c; box-shadow: 0 4px 12px #1f3b2c1f; }
+.btn-primary:hover { background: #162c21; }
 .home-header { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: #faf9f5; }
 .wordmark { display: flex; align-items: center; gap: 8px; font: bold 27px Georgia, serif; letter-spacing: -1px; color: #294d3b; }
 .brand-seal { display: grid; place-items: center; height: 31px; width: 31px; border: 1px solid #476449; border-radius: 50%; font: 19px serif; }
@@ -111,7 +109,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .delivery-card { background: #f5f3ee; border-color: #ebe8e1; color: #8b8d80; }
 .delivery-card .service-icon { color: #989c8b; }
 .soon-pill { position: absolute; right: 10px; top: 13px; font-size: 7px; background: #e9e7df; padding: 4px 7px; border-radius: 8px; }
-.rewards-card { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 40px); margin: 0 20px; padding: 22px 18px; text-align: left; border-radius: 16px; background: #294737; color: #f4f1dc; }
+.rewards-card { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 40px); margin: 0 20px; padding: 22px 18px; text-align: left; border-radius: 16px; background: #1f3b2c; color: #f4f1dc; }
 .rewards-card .eyebrow { color: #c4cc9f; font-size: 8px; }
 .rewards-card h2 { font: 19px Georgia, serif; margin: 9px 0 7px; }
 .rewards-card p:not(.eyebrow) { font-size: 9px; color: #c0cbb9; }
@@ -128,21 +126,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .discovery-card p { font-size: 9px; color: #6d765b; margin-top: 19px; }
 .discovery-tea { position: absolute; width: 158px; right: -4px; top: 7px; transform: rotate(14deg); }
 .home-footer { text-align: center; font-size: 6px; letter-spacing: 2px; color: #a1a58f; padding: 25px 0; }
-.bottom-tabs { min-height: 70px; box-shadow: 0 -5px 20px #263d3105; }
+.bottom-tabs { min-height: 70px; box-shadow: none; }
 .bottom-tabs a { justify-content: center; gap: 5px; font-size: 10px; }
-.bottom-tabs a[aria-current="page"] { color: #365c3b; }
-.bottom-tabs a[aria-current="page"]::before { content: ''; position: absolute; top: 0; height: 2px; width: 24px; background: #5d7951; }
+.bottom-tabs a[aria-current="page"] { color: #1f3b2c; }
+.bottom-tabs a[aria-current="page"]::before { content: ''; position: absolute; top: 0; height: 2px; width: 24px; background: #1f3b2c; }
 /* menu: sticky category rail with its own overflow; the page itself scrolls */
-.menu-rail { position: sticky; top: 88px; max-height: calc(100dvh - 160px); overflow-y: auto; align-self: flex-start; }
-.menu-section { scroll-margin-top: 96px; }
+.menu-rail { position: sticky; top: 164px; max-height: calc(100dvh - 232px); overflow-y: auto; align-self: flex-start; }
+.menu-section { scroll-margin-top: 170px; }
 .product-row { border-bottom: 1px solid #e8e9df; padding-bottom: 16px; }
 .product-row:last-child { border-bottom: 0; }
 
 /* page action bar, stacked directly above the persistent tab bar */
 .app-footer { background: #fff; }
-.action-bar { border-top: 1px solid #e8e9df; background: #fff; box-shadow: 0 -6px 20px #263d310a; }
+.action-bar { border-top: 1px solid #e8e4d9; background: #fff; box-shadow: 0 -6px 20px #1f3b2c0a; }
 
 /* cart sheet */
+/* the bag floats above the persistent footer (action slot + tab bar); offset set inline from measured height */
 .cart-sheet { box-shadow: 0 -12px 40px #1b2a1f26; animation: sheet-up .22s ease-out; }
 @keyframes sheet-up { from { transform: translateY(16px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
 
@@ -165,7 +164,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .member-phone { margin-top: 9px; font-size: 11px; letter-spacing: .3px; color: #7a8273; overflow-wrap: anywhere; }
 .member-avatar { flex-shrink: 0; position: relative; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; border: 5px solid #f0f1e8; background: #e1e6d4; outline: 1px solid #d8ddcc; font: 20px Georgia, serif; color: #5d714e; }
 .member-avatar>span { position: absolute; right: -5px; bottom: -6px; display: grid; place-items: center; background: #f8f8f3; border-radius: 50%; width: 21px; height: 21px; font-size: 14px; color: #9d8a51; }
-.club-card { position: relative; overflow: hidden; padding: 21px 21px 18px; background: #243f33; border-radius: 15px; color: #e9e7ce; box-shadow: 0 12px 22px -12px #243f3360; }
+.club-card { position: relative; overflow: hidden; padding: 21px 21px 18px; background: #1f3b2c; border-radius: 15px; color: #e9e7ce; box-shadow: 0 12px 22px -12px #1f3b2c60; }
 .club-card-top, .club-card-bottom { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .club-card-top>span:first-child { font-size: 7px; letter-spacing: 1.6px; color: #c8cfb8; }
 .club-tier { border: 1px solid #aaa77a60; border-radius: 20px; font-size: 8px; letter-spacing: 1.3px; padding: 5px 9px; text-transform: uppercase; color: #d9c99a; }
@@ -197,7 +196,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .member-setting-copy h3, .member-setting-title { font-size: 12px; font-weight: 600; }
 .member-setting-copy p { font-size: 9px; line-height: 1.6; margin-top: 4px; color: #89907f; }
 .member-switch { height: 24px; width: 41px; flex-shrink: 0; border-radius: 20px; background: #d5d9cc; position: relative; }
-.member-switch.is-on { background: #4f6c43; }
+.member-switch.is-on { background: #1f3b2c; }
 .member-switch>span { position: absolute; width: 18px; height: 18px; top: 3px; left: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0002; transition: transform .2s; }
 .member-switch.is-on>span { transform: translateX(17px); }
 .member-language { font-size: 11px; color: #7f8877; }

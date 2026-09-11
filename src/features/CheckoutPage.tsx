@@ -1,5 +1,5 @@
 import { useSettings } from "@/stores/useSettings";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ActionBar } from "@/components/layout/ActionBar";
 import { TopBar } from "@/components/layout/TopBar";
@@ -11,6 +11,8 @@ import { formatPHP } from "@/lib/format";
 import { categoryAccent, productById, storeById } from "@/data";
 import { voucherRepo } from "@/lib/repositories";
 import { calcCheckout, calcLineTotal, isVoucherEligible, optionSummary, selectedLines, cartSelectedTotal } from "@/lib/pricing";
+import { validateCart } from "@/lib/validation";
+import type { DictKey } from "@/lib/i18n/dict";
 import { buildOrder } from "@/lib/order";
 import { PACKAGING_FEE } from "@/lib/config";
 import { useCart } from "@/stores/useCart";
@@ -35,6 +37,12 @@ export function CheckoutPage() {
   const store = cart.storeId ? storeById[cart.storeId] : undefined;
   const lines = selectedLines(cart);
 
+  const [error, setError] = useState<string | null>(null);
+  const submitting = useRef(false);
+  const member = useAuth(s => s.member);
+  const orders = useOrders(s => s.orders);
+  const unavailableVoucherIds = orders.filter(o => o.status !== "cancelled" && o.appliedVoucherId).map(o => o.appliedVoucherId!);
+  const voucherContext = { memberId: member?.id, unavailableVoucherIds, storeId: cart.storeId, productIds: lines.map(l => l.productId) };
   const [packaging, setPackaging] = useState(PACKAGING_FEE.enabledByDefault);
   const [voucher, setVoucher] = useState<Voucher | undefined>(undefined);
   const [pickupTime, setPickupTime] = useState<PickupTimeSlot>(ASAP);
@@ -44,8 +52,8 @@ export function CheckoutPage() {
 
   const itemsSubtotal = cartSelectedTotal(cart, memberMode);
   const breakdown = useMemo(
-    () => calcCheckout({ cart, memberMode, packagingFeeAmount: packaging ? PACKAGING_FEE.amount : 0, voucher }),
-    [cart, memberMode, packaging, voucher],
+    () => calcCheckout({ cart, memberMode, packagingFeeAmount: packaging ? PACKAGING_FEE.amount : 0, voucher, voucherContext }),
+    [cart, memberMode, packaging, voucher, member, orders],
   );
 
   if (!store || lines.length === 0) {
@@ -66,12 +74,20 @@ export function CheckoutPage() {
       setLoginOpen(true);
       return;
     }
+    if (submitting.current) return;
+    const freshCart = useCart.getState().cart;
+    const issue = validateCart(freshCart);
+    if (issue) { setError(issue); return; }
+    if (pickupTime.type === "scheduled" && (!pickupTime.scheduledAt || Date.parse(pickupTime.scheduledAt) <= Date.now())) { setError("validation.time"); return; }
     const currentMember = useAuth.getState().member;
     const currentMemberMode = !!currentMember && useSettings.getState().memberPriceEnabled;
+    const freshContext = { ...voucherContext, memberId: currentMember?.id, unavailableVoucherIds: useOrders.getState().orders.filter(o => o.status !== "cancelled" && o.appliedVoucherId).map(o => o.appliedVoucherId!) };
+    if (voucher && !isVoucherEligible(voucher, cartSelectedTotal(freshCart, currentMemberMode), freshContext)) { setError("validation.voucher"); return; }
+    submitting.current = true;
     const order = buildOrder({
-      cart,
+      cart: freshCart,
       store,
-      breakdown: calcCheckout({ cart, memberMode: currentMemberMode, packagingFeeAmount: packaging ? PACKAGING_FEE.amount : 0, voucher }),
+      breakdown: calcCheckout({ cart: freshCart, memberMode: currentMemberMode, packagingFeeAmount: packaging ? PACKAGING_FEE.amount : 0, voucher, voucherContext: freshContext }),
       memberMode: currentMemberMode,
       memberId: currentMember?.id ?? null,
       paymentMethod: "gcash",
@@ -79,15 +95,17 @@ export function CheckoutPage() {
       voucher,
     });
     addOrder(order);
+    if (!useOrders.getState().orders.some(o => o.id === order.id)) { submitting.current = false; setError("validation.voucher"); return; }
     // remove ordered (selected) lines from cart; keep unselected items
     removeSelected();
     navigate(`/payment/${order.id}`);
   };
 
   return (
-    <div className="flex flex-1 flex-col bg-cream">
+    <div className="checkout-page flex flex-1 flex-col bg-cream">
       <TopBar title={t("checkout.title")} />
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3 pb-32">
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3 pb-6">
+        {error && <p role="alert" className="validation-message">{t(error as DictKey)}</p>}
         {/* pickup store */}
         <div className="card p-4">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-red">{t("common.pickup")}</p>
@@ -194,7 +212,7 @@ export function CheckoutPage() {
             {!voucher && <Icon name="check" className="h-5 w-5 text-navy" />}
           </button>
           {voucherRepo.listAvailable().map((v) => {
-            const eligible = isVoucherEligible(v, itemsSubtotal);
+            const eligible = isVoucherEligible(v, itemsSubtotal, voucherContext);
             return (
               <button
                 key={v.id}
@@ -212,9 +230,9 @@ export function CheckoutPage() {
                     <Icon name="ticket" className="h-4 w-4 text-brand-red" />
                     {tx(v.title)}
                   </span>
-                  {!eligible && v.minSpend && (
+                  {!eligible && (
                     <span className="mt-0.5 block text-xs text-muted">
-                      {tx({ en: "Min spend", zh: "最低消费" })} {formatPHP(v.minSpend)}
+                      {tx({ en: "Not available for this order", zh: "当前订单不可用" })}
                     </span>
                   )}
                 </span>

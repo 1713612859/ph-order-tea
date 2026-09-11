@@ -5,26 +5,36 @@ export default {
     extend: {
       colors: {
         navy: {
-          DEFAULT: "#293F33",
-          50: "#EAEEF5",
-          600: "#1B3A63",
-          900: "#0A1730",
+          DEFAULT: "#061D3B",
+          50: "#EAF0F8",
+          600: "#244C80",
+          900: "#03142B",
         },
         brand: {
-          red: "#9D613E",
-          amber: "#A9750B",
+          red: "#E60012",
+          amber: "#9B6A32",
           green: "#6E8B4E",
         },
         cream: {
-          DEFAULT: "#FAF9F5",
-          soft: "#F5EFE3",
+          DEFAULT: "#F7F4EE",
+          soft: "#F0EDE4",
           card: "#FFFFFF",
         },
-        line: "#E7DFD0",
+        line: "#E8E4D9",
         muted: "#767E70",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "SF Pro Text",
+          "Inter Variable",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
       },
       maxWidth: { app: "480px" },
       boxShadow: {
@@ -37,4 +47,3 @@ export default {
   },
   plugins: [],
 };
-

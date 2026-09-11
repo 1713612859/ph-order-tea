@@ -9,27 +9,30 @@ export function LoginSheet({ open, onClose, onSuccess }: { open: boolean; onClos
   const [phone, setPhone] = useState("");
   const [agree, setAgree] = useState(false);
 
-  const canSubmit = phone.replace(/\D/g, "").length >= 9 && agree;
+  const canSubmit = /^(?:0?9\d{9})$/.test(phone.replace(/[\s-]/g, "")) && agree;
 
   const submit = () => {
     if (!canSubmit) return;
-    login(`+63 ${phone}`);
-    onClose();
+    login(`+63 ${phone.replace(/[\s-]/g, "").replace(/^0/, "")}`);
     onSuccess?.();
+    onClose();
   };
 
   return (
     <Sheet open={open} onClose={onClose} title={<span className="tracking-wide">{t("login.welcome")}</span>}>
-      <div className="space-y-4 pb-2">
+      <div className="login-form space-y-4 pb-2">
         <div className="h-1 w-8 rounded bg-brand-red" />
         <div className="flex items-center gap-3">
           <span className="rounded-lg bg-cream-soft px-3 py-3 text-sm font-semibold text-navy">+63</span>
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            inputMode="numeric"
+            inputMode="tel"
+            aria-label={t("login.phone")}
+            autoComplete="tel-national"
+            maxLength={14}
             placeholder={t("login.phone")}
-            className="flex-1 border-b border-line py-3 text-sm outline-none placeholder:text-muted focus:border-navy"
+            className="min-w-0 flex-1 border-b border-line py-3 text-sm outline-none placeholder:text-muted focus:border-navy"
           />
         </div>
         <input

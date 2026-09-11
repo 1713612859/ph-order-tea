@@ -18,13 +18,15 @@ function orderNo(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  const seq = String((date.getTime() % 10000)).padStart(4, "0");
+  // in-session sequence avoids the sub-second collisions of a pure timestamp suffix
+  const seq = String(((date.getTime() % 90) * 100 + (orderSeq % 100)) % 10000).padStart(4, "0");
   return `${y}${m}${d}-${seq}`;
 }
 
 function pickupNumber(): string {
-  const letter = String.fromCharCode(65 + Math.floor(Math.random() * 6)); // A-F
-  const n = String(Math.floor(Math.random() * 90) + 10);
+  // deterministic per-order sequence: unique within a session, stable format A-F + 2 digits
+  const letter = String.fromCharCode(65 + (orderSeq % 6));
+  const n = String(((orderSeq * 7) % 90) + 10);
   return `${letter}${n}`;
 }
 

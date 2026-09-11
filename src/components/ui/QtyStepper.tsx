@@ -23,7 +23,8 @@ export function QtyStepper({ value, onChange, min = 1, size = "md" }: QtyStepper
       <button
         onClick={() => onChange(value + 1)}
         aria-label="Increase"
-        className={`${box} flex items-center justify-center rounded-lg bg-navy text-white`}
+        disabled={value >= 99}
+        className={`${box} flex items-center justify-center rounded-lg bg-navy text-white disabled:opacity-30`}
       >
         <Icon name="plus" className="h-4 w-4" />
       </button>

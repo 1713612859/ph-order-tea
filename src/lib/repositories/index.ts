@@ -4,6 +4,7 @@
  * Kept synchronous for the prototype; signatures can become async later.
  */
 import type { Category, ID, Product, Store, StoreWithDistance, Voucher } from "@/types";
+import { useOrders } from "@/stores/useOrders";
 import {
   categories,
   getStoreEntry,
@@ -78,12 +79,19 @@ export const catalogRepo = {
   },
   getAvailability(storeId: ID | null, productId: ID): { isSoldOut: boolean; soldOutOptionIds: string[] } {
     const entry = storeId ? getStoreEntry(storeId, productId) : undefined;
-    return { isSoldOut: entry?.isSoldOut ?? false, soldOutOptionIds: entry?.soldOutOptionIds ?? [] };
+    return { isSoldOut: entry?.isAvailable === false || (entry?.isSoldOut ?? false), soldOutOptionIds: entry?.soldOutOptionIds ?? [] };
   },
 };
 
 export const voucherRepo = {
+  /** A voucher is considered redeemed once any order (even unpaid) has applied it. */
   listAvailable(): Voucher[] {
-    return allVouchers.filter((v) => !v.isUsed);
+    const used = new Set(
+      useOrders
+        .getState()
+        .orders.map((o) => o.appliedVoucherId)
+        .filter((id): id is ID => !!id),
+    );
+    return allVouchers.filter((v) => !v.isUsed && !used.has(v.id));
   },
 };

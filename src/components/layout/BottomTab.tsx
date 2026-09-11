@@ -17,7 +17,7 @@ export function BottomTab() {
   const qty = useCart((s) => cartTotalQuantity(s.cart));
 
   return (
-    <nav className="bottom-tabs grid grid-cols-4 border-t border-line bg-white/95 pb-safe backdrop-blur">
+    <nav className="bottom-tabs grid grid-cols-4 border-t border-line bg-white pb-safe">
       {tabs.map((tab) => (
         <NavLink
           key={tab.to}

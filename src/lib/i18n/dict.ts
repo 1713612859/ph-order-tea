@@ -1,6 +1,12 @@
 import type { LocaleCode } from "@/types";
 
 export const dict = {
+  "validation.store": { en: "This store is not accepting pickup orders. Please choose another store.", zh: "该门店暂不接受自提订单，请重新选店。" },
+  "validation.unavailable": { en: "An item is unavailable at this store. Please update your bag.", zh: "有商品在当前门店不可售，请调整购物袋。" },
+  "validation.options": { en: "Please select available options for every required group.", zh: "请检查必选规格与售罄选项。" },
+  "validation.quantity": { en: "Choose between 1 and 99 items.", zh: "单项数量须为 1–99 件。" },
+  "validation.voucher": { en: "This voucher is no longer eligible. Please choose another voucher.", zh: "该优惠券已不满足使用条件，请重新选择。" },
+  "validation.time": { en: "This pickup time has passed. Please choose another time.", zh: "该取餐时间已过，请重新选择。" },
   // tabs
   "tab.home": { en: "Home", zh: "首页" },
   "tab.menu": { en: "Menu", zh: "点单" },
@@ -54,6 +60,8 @@ export const dict = {
   // menu
   "menu.orderInstant": { en: "Order now, made instantly", zh: "即点即做" },
   "menu.selectStore": { en: "Select a store to start", zh: "请先选择门店" },
+  "menu.searchPlaceholder": { en: "Search the menu...", zh: "搜索菜单…" },
+  "menu.noResults": { en: "No matching drinks", zh: "没有找到匹配的饮品" },
 
   // product
   "product.showMore": { en: "Show more", zh: "展开" },

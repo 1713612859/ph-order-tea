@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TeaArtwork } from "./TeaArtwork";
 import { getTeaArt } from "@/data/productArt";
 import type { ImageAsset } from "@/types";
@@ -16,9 +17,10 @@ interface MediaProps {
 /** Product/store visual. Uses a real image when available, else per-SKU vector art. */
 export function Media({ image, productId, accent = "#6E8B4E", className = "", rounded = "rounded-xl2", glyph = "cup" }: MediaProps) {
   const { tx } = useT();
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
-  if (image?.url) {
-    return <img src={image.url} alt={tx(image.alt)} className={`${className} ${rounded} object-cover`} loading="lazy" />;
+  if (image?.url && image.url !== failedUrl) {
+    return <img onError={() => setFailedUrl(image.url)} src={image.url} alt={tx(image.alt)} className={`${className} ${rounded} object-cover`} loading="lazy" />;
   }
 
   if (glyph === "cup" && productId) {
