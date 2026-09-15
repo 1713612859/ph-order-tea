@@ -1,5 +1,22 @@
 node_modules/
 dist/
-tsconfig.tsbuildinfo
-.claude/
+dist-ssr/
+*.local
+*.tsbuildinfo
+
+# agent working files & third-party reference screenshots (not for distribution)
 .zcode/
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log

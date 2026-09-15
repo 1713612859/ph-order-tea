@@ -32,10 +32,10 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-40;
+    @apply inline-flex items-center justify-center rounded-none bg-navy px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-40;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center rounded-full border border-navy px-6 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] disabled:opacity-40;
+    @apply inline-flex items-center justify-center rounded-none border border-navy px-6 py-3 text-sm font-semibold text-navy transition active:scale-[0.98] disabled:opacity-40;
   }
   .chip {
     @apply rounded-full px-4 py-2 text-sm font-medium transition;
@@ -205,9 +205,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .member-tea-note>span:nth-child(2) { flex: 1; }
 .member-tea-note strong { display: block; font: 14px Georgia, serif; }
 .member-tea-note small { display: block; font-size: 9px; color: #849073; margin-top: 6px; }
+/* Log out: an explicit, full-width action rather than a buried text link. */
+.member-logout-section { margin-top: 26px; }
+.member-logout { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; padding: 14px 20px; border: 0; border-radius: 0; background: #061d3b; color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 4px 12px rgba(6, 29, 59, .22); }
+.member-logout:hover { background: #0b2b52; }
+.member-logout:active { transform: scale(.985); }
+.member-logout-hint { margin-top: 9px; text-align: center; font-size: 11px; color: #8b917f; }
+
 .member-footer { text-align: center; padding: 21px 0 23px; }
-.member-footer button { font-size: 10px; color: #7a8173; padding: 5px 12px 19px; }
-.member-footer button span { margin-left: 10px; }
 .member-footer p { font-size: 6px; color: #939c88; letter-spacing: 1.8px; }
 .member-footer>span { display: block; font-size: 8px; color: #a1a796; margin-top: 7px; }
 @media (max-width: 370px) { .member-page { padding: 0 20px; } .member-profile h1 { font-size: 24px; } .club-card-title { font-size: 27px; } .club-card { padding: 18px; } .member-header-note { max-width: 110px; line-height: 1.8; } }

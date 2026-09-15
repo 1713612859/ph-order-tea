@@ -43,7 +43,16 @@ export function MePage() {
     </section>
 
     <button className="member-tea-note" onClick={() => navigate(selectedStoreId ? "/menu" : "/stores")}><span className="member-note-icon"><Icon name="menu" className="h-7 w-7"/></span><span><strong>{tx({ en: "A good day starts with tea.", zh: "今天的美好，从一杯茶开始。" })}</strong><small>{tx({ en: "Find your next favorite", zh: "寻找你的下一杯心头好" })}</small></span><Icon name="chevron-right" className="h-4 w-4"/></button>
-    <footer className="member-footer">{isLoggedIn && <button onClick={() => setLogoutConfirm(true)}>{t("common.logout")} <span aria-hidden="true">↗</span></button>}<p>CHATEA · {tx({ en: "MADE FOR YOUR EVERYDAY", zh: "让好茶融入日常" })}</p><span>{tx({ en: "Demo experience · No real transactions", zh: "原型体验 · 不产生真实交易" })}</span></footer>
+    {isLoggedIn && (
+      <section className="member-logout-section">
+        <button className="member-logout" onClick={() => setLogoutConfirm(true)}>
+          <Icon name="logout" className="h-5 w-5"/>
+          {t("common.logout")}
+        </button>
+        <p className="member-logout-hint">{tx({ en: "Signed in as", zh: "当前登录账号" })} {member?.phone}</p>
+      </section>
+    )}
+    <footer className="member-footer"><p>CHATEA · {tx({ en: "MADE FOR YOUR EVERYDAY", zh: "让好茶融入日常" })}</p><span>{tx({ en: "Demo experience · No real transactions", zh: "原型体验 · 不产生真实交易" })}</span></footer>
     <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)}/>
     <ConfirmDialog open={logoutConfirm} title={t("common.logout")} body={tx({ en: "Confirm logging out?", zh: "确认退出登录？" })} confirmLabel={t("common.yes")} cancelLabel={t("common.no")} onConfirm={() => { logout(); setLogoutConfirm(false); }} onCancel={() => setLogoutConfirm(false)}/>
   </div>;
